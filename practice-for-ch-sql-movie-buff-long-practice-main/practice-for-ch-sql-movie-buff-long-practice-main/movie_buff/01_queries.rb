@@ -1,3 +1,32 @@
+# == Schema Information
+#
+# Table name: actors
+#
+#  id         :bigint           not null, primary key
+#  name       :string           not null
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
+# Table name: movies
+#
+#  id          :bigint           not null, primary key
+#  title       :string           not null
+#  yr          :integer          not null
+#  score       :float            not null
+#  votes       :integer          not null
+#  director_id :bigint           
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#
+# Table name: castings
+#
+#  id         :bigint           not null, primary key
+#  actor_id   :bigint           not null
+#  movie_id   :bigint           not null
+#  ord        :integer          not null
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+
 def it_was_ok
   # Consider the following:
   #
@@ -6,7 +35,7 @@ def it_was_ok
   # You can use ranges (a..b) inside a where method.
   #
   # Find the id, title, and score of all movies with scores between 2 and 3.
-
+  Movie.where(score: (2..3)).select :id, :title, :score
 end
 
 def harrison_ford
@@ -21,6 +50,10 @@ def harrison_ford
   # Find the id and title of all movies in which Harrison Ford appeared but not
   # as a lead actor.
 
+  # every id and title in movie ==> connect to all actors
+  # all movies with Harrison Ford
+  # "where.not" ==> make sure casting ord != 1 (not lead actor)
+  Movie.select(:id, :title).joins(:actors).where(actors: { name: 'Harrison Ford' }).where.not(castings: { ord: 1 })
 end
 
 def biggest_cast
@@ -38,6 +71,14 @@ def biggest_cast
   # Find the id and title of the 3 movies with the largest casts (i.e., most
   # actors).
   
+  # Movie.select(:id, :title).joins(:actors).group(:id).order(Arel.sql("COUNT(*) DESC")).limit(3)
+
+  Movie.select(:id, :title)
+  .joins(:actors)
+  .group(:id)
+  .order('COUNT(actors.id) DESC')
+  .limit(3)
+
 end
 
 def directed_by_one_of(them)
@@ -54,6 +95,9 @@ def directed_by_one_of(them)
   # Find the id and title of all the movies directed by one of 'them'.
   
   # Note: Directors appear in the 'actors' table.
+
+  Movie.select(:id, :title)
+    
 
 end
 
